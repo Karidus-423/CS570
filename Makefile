@@ -1,4 +1,5 @@
 CC = gcc
+CFLAGS = -ltirpc
 SRC = src
 OBJ = obj
 BIN = bin
@@ -16,23 +17,26 @@ XDR_FILTER_OBJ = $(OBJ)/ssnfs_xdr.o
 
 all: $(BIN) $(OBJ) client server
 
+test:
+	$(CC) -o $(BIN)/sample.oof $(SRC)/procedures.c -lncurses
+
 client: $(CLIENT_OBJ) $(CLIENT_STUB_OBJ) $(XDR_FILTER_OBJ)
-	$(CC) -o $(BIN)/sun-client $(CLIENT_OBJ) $(CLIENT_STUB_OBJ) $(XDR_FILTER_OBJ) -ltirpc
+	$(CC) -o $(BIN)/client.oof $(CLIENT_OBJ) $(CLIENT_STUB_OBJ) $(XDR_FILTER_OBJ) $(CFLAGS) -lncurses
 
 server: $(SERVER_OBJ) $(SERVER_STUB_OBJ) $(XDR_FILTER_OBJ)
-	$(CC) -o $(BIN)/sun-server $(SERVER_OBJ) $(SERVER_STUB_OBJ) $(XDR_FILTER_OBJ) -ltirpc
+	$(CC) -o $(BIN)/server.oof $(SERVER_OBJ) $(SERVER_STUB_OBJ) $(XDR_FILTER_OBJ) $(CFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c $(RPC_HEADER)
-	$(CC) -c $< -o $@ -I/usr/include/tirpc
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ)/ssnfs_clnt.o: $(CLIENT_STUB)
-	$(CC) -c $< -o $@ -I/usr/include/tirpc
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ)/ssnfs_svc.o: $(SERVER_STUB)
-	$(CC) -c $< -o $@ -I/usr/include/tirpc
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ)/ssnfs_xdr.o: $(XDR_FILTER)
-	$(CC) -c $< -o $@ -I/usr/include/tirpc
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(BIN) $(OBJ):
 	mkdir -p $@
