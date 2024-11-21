@@ -101,7 +101,6 @@ static void ssnfsprog_1(struct svc_req *rqstp, register SVCXPRT *transp) {
 
 int main(int argc, char **argv) {
     register SVCXPRT *transp;
-
     pmap_unset(SSNFSPROG, SSNFSVER);
 
     transp = svcudp_create(RPC_ANYSOCK);
@@ -124,6 +123,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    printf("Startup Success\n");
     svc_run();
     fprintf(stderr, "%s", "svc_run returned");
     exit(1);

@@ -9,8 +9,8 @@
 #include <string.h>
 #include <unistd.h>
 
-bool ConnectToServer(char *host, CLIENT *client) {
-    client = clnt_create(host, SSNFSPROG, SSNFSVER, "udp");
+bool ConnectToServer(char *host, CLIENT **client) {
+    *client = clnt_create(host, SSNFSPROG, SSNFSVER, "udp");
     if (client == NULL) {
         clnt_pcreateerror("Unable to create client at ");
         printf("%s\n", host);
@@ -19,7 +19,7 @@ bool ConnectToServer(char *host, CLIENT *client) {
     return true;
 }
 
-void FileServer(char *host, CLIENT *client) {
+void FileServer(char *host, CLIENT **client) {
     char server_dir[50];
     strcpy(server_dir, getpwuid(getuid())->pw_name);
     strcat(server_dir, "@");
@@ -45,16 +45,19 @@ void FileServer(char *host, CLIENT *client) {
     return;
 }
 
-int Open(char *filename_to_open, CLIENT *clnt) {
+int Open(char *filename_to_open, CLIENT **clnt) {
     open_output *result_1;
+
     open_input open_file_1_arg;
     strcpy(open_file_1_arg.user_name, (getpwuid(getuid()))->pw_name);
     strcpy(open_file_1_arg.file_name, filename_to_open);
-    result_1 = open_file_1(&open_file_1_arg, clnt);
+
+    result_1 = open_file_1(&open_file_1_arg, *clnt);
     if (result_1 == (open_output *)NULL) {
-        clnt_perror(clnt, "call failed");
+        clnt_perror(*clnt, "call failed");
+        return -1;
     }
-    printf(" File name is %s\n", (*result_1).out_msg.out_msg_val);
+    printf("File name is %s\n", (*result_1).out_msg.out_msg_val);
     return ((*result_1).fd);
 }
 
@@ -69,20 +72,20 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[1], "-d") == 0) {
         // Enter Debug Mode for testing.
         host = argv[2];
-        if (ConnectToServer(host, client) == false) {
+        if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         }
         // --------------------------Test Code----------------------------------
         printf("DEBUG\n");
-        int file_desc = Open("Test-File", client);
-        printf("Returned File Descriptor %d", file_desc);
+        int file_desc = Open("Test-File", &client);
+        printf("Returned File Descriptor %d\n", file_desc);
         // ---------------------------------------------------------------------
     } else {
         host = argv[1];
-        if (ConnectToServer(host, client) == false) {
+        if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         } else {
-            FileServer(host, client);
+            FileServer(host, &client);
         }
     }
 }
