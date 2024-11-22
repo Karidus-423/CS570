@@ -1,4 +1,4 @@
-#include "genrpc/ssnfs.h"
+#include "ssnfs.h"
 
 open_output *open_file_1_svc(open_input *argp, struct svc_req *rqstp) {
     static open_output result;

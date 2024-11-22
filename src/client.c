@@ -1,4 +1,4 @@
-#include "genrpc/ssnfs.h"
+#include "ssnfs.h"
 #include <malloc.h>
 #include <ncurses.h>
 #include <pwd.h>
@@ -19,31 +19,29 @@ bool ConnectToServer(char *host, CLIENT **client) {
     return true;
 }
 
-void FileServer(char *host, CLIENT **client) {
-    char server_dir[50];
-    strcpy(server_dir, getpwuid(getuid())->pw_name);
-    strcat(server_dir, "@");
-    strcat(server_dir, host);
-
-    /// -----------------------------BEGIN TUI----------------------------------
-    initscr();
-    noecho();
-    curs_set(0);
-
-    int yMax, xMax;
-
-    getmaxyx(stdscr, yMax, xMax);
-
-    WINDOW *win = newwin(yMax / 2, xMax / 2, yMax / 4, xMax / 4);
-    box(win, 0, 0);
-    mvwprintw(win, 0, 2, "%s", server_dir);
-    mvwprintw(win, 2, 2, "> ");
-    while (wgetch(win) != 'q') {
-    };
-    endwin();
-    // ------------------------------END TUI------------------------------------
-    return;
-}
+// void FileServer(char *host, CLIENT **client) {
+//     char server_dir[50];
+//     strcpy(server_dir, getpwuid(getuid())->pw_name);
+//     strcat(server_dir, "@");
+//     strcat(server_dir, host);
+//
+//     /// -----------------------------BEGIN
+//     TUI---------------------------------- initscr(); noecho(); curs_set(0);
+//
+//     int yMax, xMax;
+//
+//     getmaxyx(stdscr, yMax, xMax);
+//
+//     WINDOW *win = newwin(yMax / 2, xMax / 2, yMax / 4, xMax / 4);
+//     box(win, 0, 0);
+//     mvwprintw(win, 0, 2, "%s", server_dir);
+//     mvwprintw(win, 2, 2, "> ");
+//     while (wgetch(win) != 'q') {
+//     };
+//     endwin();
+//     // ------------------------------END
+//     TUI------------------------------------ return;
+// }
 
 int Open(char *filename_to_open, CLIENT **clnt) {
     open_output *result_1;
@@ -85,7 +83,8 @@ int main(int argc, char *argv[]) {
         if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         } else {
-            FileServer(host, &client);
+            // FileServer(host, &client);
+            printf("TUI\n");
         }
     }
 }
