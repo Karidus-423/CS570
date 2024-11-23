@@ -19,29 +19,29 @@ bool ConnectToServer(char *host, CLIENT **client) {
     return true;
 }
 
-// void FileServer(char *host, CLIENT **client) {
-//     char server_dir[50];
-//     strcpy(server_dir, getpwuid(getuid())->pw_name);
-//     strcat(server_dir, "@");
-//     strcat(server_dir, host);
-//
-//     /// -----------------------------BEGIN
-//     TUI---------------------------------- initscr(); noecho(); curs_set(0);
-//
-//     int yMax, xMax;
-//
-//     getmaxyx(stdscr, yMax, xMax);
-//
-//     WINDOW *win = newwin(yMax / 2, xMax / 2, yMax / 4, xMax / 4);
-//     box(win, 0, 0);
-//     mvwprintw(win, 0, 2, "%s", server_dir);
-//     mvwprintw(win, 2, 2, "> ");
-//     while (wgetch(win) != 'q') {
-//     };
-//     endwin();
-//     // ------------------------------END
-//     TUI------------------------------------ return;
-// }
+void FileServer(char *host, CLIENT **client) {
+    char server_dir[50];
+    strcpy(server_dir, getpwuid(getuid())->pw_name);
+    strcat(server_dir, "@");
+    strcat(server_dir, host);
+
+    // -----------------------------BEGIN TUI-----------------------------------
+	initscr(); noecho(); curs_set(0);
+
+    int yMax, xMax;
+
+    getmaxyx(stdscr, yMax, xMax);
+
+    WINDOW *win = newwin(yMax / 2, xMax / 2, yMax / 4, xMax / 4);
+    box(win, 0, 0);
+    mvwprintw(win, 0, 2, "%s", server_dir);
+    mvwprintw(win, 2, 2, "> ");
+    while (wgetch(win) != 'q') {
+    };
+    endwin();
+    // ------------------------------END TUI------------------------------------ 
+	return;
+}
 
 int Open(char *filename_to_open, CLIENT **clnt) {
     open_output *result_1;
@@ -53,10 +53,32 @@ int Open(char *filename_to_open, CLIENT **clnt) {
     result_1 = open_file_1(&open_file_1_arg, *clnt);
     if (result_1 == (open_output *)NULL) {
         clnt_perror(*clnt, "call failed");
-        return -1;
     }
     printf("File name is %s\n", (*result_1).out_msg.out_msg_val);
     return ((*result_1).fd);
+}
+
+void Test(CLIENT **clnt){
+int i,j;
+int fd1,fd2;
+char buffer[100];
+fd1=Open("File1",*&clnt); 
+printf("Returned File Descriptor %d\n", fd1);
+// for (i=0; i< 20;i++){
+// Write(fd1,  "This is a test program for cs570 assignment 4", 15);
+// }
+// Close(fd1);
+// fd2=Open("File1");
+// for (j=0; j< 20;j++){
+// Read(fd2, buffer, 10);
+// printf("%s\n",buffer);
+// }
+// Seek (fd2,40);
+// Read(fd2, buffer, 20);
+// printf("%s\n",buffer);
+// Close(fd2);
+// Delete("File1");
+// List();
 }
 
 int main(int argc, char *argv[]) {
@@ -74,17 +96,15 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
         // --------------------------Test Code----------------------------------
-        printf("DEBUG\n");
-        int file_desc = Open("Test-File", &client);
-        printf("Returned File Descriptor %d\n", file_desc);
+        printf("TEST\n");
+		Test(&client);
         // ---------------------------------------------------------------------
     } else {
         host = argv[1];
         if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         } else {
-            // FileServer(host, &client);
-            printf("TUI\n");
+            FileServer(host, &client);
         }
     }
 }

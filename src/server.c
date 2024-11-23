@@ -1,8 +1,41 @@
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include "ssnfs.h"
+
+typedef char block[512]; // 1 Block = 512bytes
+typedef struct file_meta{
+	char user[20];
+	char name[20];
+	int int_desc;
+	block size;
+	block used;
+}file_meta;
+
+struct stat st ={0};
+
+const char *db_dir = "./src/database/";
+
+void SetupDB(){
+	int check_dr = stat(db_dir,&st);
+	if(check_dr != 0){
+		int mk_dir = mkdir(db_dir, 0700);
+		if (mk_dir != 0){
+			fprintf(stderr, "ERROR: %s\n",strerror(errno));
+			exit(0);
+		}
+		FILE *mk_table = fopen("file.tb","w");
+		FILE *mk_db = fopen("database.db","w");
+		fclose(mk_table);
+		fclose(mk_db);
+	}
+}
 
 open_output *open_file_1_svc(open_input *argp, struct svc_req *rqstp) {
     static open_output result;
-
+	SetupDB();
     result.fd = 20;
     result.out_msg.out_msg_len = 10;
     free(result.out_msg.out_msg_val);
