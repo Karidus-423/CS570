@@ -1,9 +1,10 @@
-#include "ssnfs.h"
+#include "gen/ssnfs.h"
 #include <malloc.h>
 #include <ncurses.h>
 #include <pwd.h>
 #include <rpc/clnt.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,21 +53,39 @@ int Open(char *filename_to_open, CLIENT **clnt) {
 
     result_1 = open_file_1(&open_file_1_arg, *clnt);
     if (result_1 == (open_output *)NULL) {
-        clnt_perror(*clnt, "call failed");
+        clnt_perror(*clnt, "call open failed ");
     }
     printf("File name is %s\n", (*result_1).out_msg.out_msg_val);
     return ((*result_1).fd);
 }
 
-void Test(CLIENT **clnt){
+int Write(int fd, char*bfr, CLIENT **clnt, int bytes ,char *usr_name){
+	write_output *result;
+
+	// write_input write_file_1_arg;
+	// strpcpy(write_file_1_arg.user_name, usr_name);
+	// write_file_1_arg.fd = fd;
+	// write_file_1_arg.buffer.buffer_len = strlen(bfr) + 1;
+	// write_file_1_arg.buffer.buffer_val = bfr;
+	// write_file_1_arg.numbytes = bytes;
+	//
+	// result = write_file_1(&write_file_1_arg, *clnt);
+	// if (result == NULL){
+	// 	clnt_perror(*clnt,"call write failed");
+	// }
+
+	return ((*result).success);
+}
+
+void Test(CLIENT **clnt, char *usr_name){
 int i,j;
 int fd1,fd2;
 char buffer[100];
 fd1=Open("File1",*&clnt); 
 printf("Returned File Descriptor %d\n", fd1);
-// for (i=0; i< 20;i++){
-// Write(fd1,  "This is a test program for cs570 assignment 4", 15);
-// }
+for (i=0; i< 20;i++){
+Write(fd1,  "This is a test program for cs570 assignment 4", *&clnt, 15,usr_name);
+}
 // Close(fd1);
 // fd2=Open("File1");
 // for (j=0; j< 20;j++){
@@ -96,8 +115,10 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
         // --------------------------Test Code----------------------------------
+		int fd = Open("01CheckStep",&client);
         printf("TEST\n");
-		Test(&client);
+		char *usr_name = getpwuid(getuid())->pw_name;
+		Test(&client,usr_name);
         // ---------------------------------------------------------------------
     } else {
         host = argv[1];
