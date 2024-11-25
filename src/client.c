@@ -83,9 +83,9 @@ int fd1,fd2;
 char buffer[100];
 fd1=Open("File1",*&clnt); 
 printf("Returned File Descriptor %d\n", fd1);
-for (i=0; i< 20;i++){
-Write(fd1,  "This is a test program for cs570 assignment 4", *&clnt, 15,usr_name);
-}
+// for (i=0; i< 20;i++){
+// Write(fd1,  "This is a test program for cs570 assignment 4", *&clnt, 15,usr_name);
+// }
 // Close(fd1);
 // fd2=Open("File1");
 // for (j=0; j< 20;j++){
