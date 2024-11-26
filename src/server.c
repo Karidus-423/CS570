@@ -8,25 +8,34 @@
 #include "gen/ssnfs.h"
 #include "serve.h"
 
+//Should only update once per lifetime. As all clients send "01CheckStep".
+int lifetime_checks = 0;
+
 open_output *open_file_1_svc(open_input *argp, struct svc_req *rqstp) {
     static open_output result;
 	//Check if database is present. 
-	if (strcmp(argp->file_name, "01CheckStep")== 0){
+	if ((strcmp(argp->file_name, "01CheckStep")== 0) && lifetime_checks == 0){
 		printf("Check Step Recieved.\n");
-
 		SetupDB();
-
 		return &result;
 	}else{
-		// result.fd = FindFile(argp->user_name, argp->file_name);
-		// result.out_msg.out_msg_len = 10;
-		// result.out_msg.out_msg_val =
-		// 	(char *)malloc(result.out_msg.out_msg_len + 1);
-		// strcpy(result.out_msg.out_msg_val, (*argp).file_name);
-		// printf("In server: filename recieved:%s\n", argp->file_name);
-		// free(result.out_msg.out_msg_val);
-		//
-		// printf("In server username received:%s\n", argp->user_name);
+		result.fd = FindFile(argp->user_name, argp->file_name);
+		if (result.fd == -1){
+			//File not found.
+			if (AddFile(argp->user_name, argp->file_name) == 0){
+				result.fd = FindFile(argp->user_name, argp->file_name);
+			}else{
+				printf("Unable to add file");
+				exit(EXIT_FAILURE);
+			}
+		}else{
+			result.out_msg.out_msg_len=10;
+			free(result.out_msg.out_msg_val);
+			result.out_msg.out_msg_val=(char *) malloc(result.out_msg.out_msg_len);
+			strcpy(result.out_msg.out_msg_val, (*argp).file_name);
+			printf("In server: filename recieved:%s\n",argp->file_name);
+			printf("In server username received:%s\n",argp->user_name);
+		}
 		return &result;
 	}
 }

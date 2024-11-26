@@ -21,6 +21,8 @@ typedef enum fileState {
   FILE_ERROR = -1,
   FILE_OPEN,
   FILE_CLOSED,
+  EMPTY,
+  HAS_CONTENT,
 } fileState;
 
 typedef struct fileMeta {
@@ -28,9 +30,10 @@ typedef struct fileMeta {
   char user[25];
   int fd;          // Index in Array
   long file_start; // Used for deleting file.
-  long txt_start;  // Bound to writeable area. No txt_start empty block.
+  long txt_start;  // Used to if file_ptr out of bounds.
   long file_ptr;   // Start at TEXT_START cannot go before it.
   fileState state;
+  fileState block_info;
 } fileMeta;
 
 #define FILE_SEPARATOR "\x1C"
@@ -39,16 +42,18 @@ typedef struct fileMeta {
 #define TEXT_START "\x02"
 #define NULL_BYTE "\x00"
 
-#define BUFFER_SIZE 256
 #define BLOCK 512
+#define BUFFER_SIZE BLOCK
 #define FILE_BLOCK (BLOCK * 64)
+#define MAX_DB_SIZE (16 * 1024 * 1024 / FILE_BLOCK)
 
 extern const char *DB_PATH;
 
 int SetupDB();
 int FindFile(char usr_name[], char file_name[]);
-int ExtractUsedBlocks(char usr_name[], char file_name[]);
+int AddFile(char usr_name[], char file_name[]);
+int InitDBTable();
+int SaveFileToDB(fileMeta file);
 int RetrieveDatabaseInfo();
-int AddFile(char usr_name[], char file_name[], FILE *db_ptr);
 
 #endif
