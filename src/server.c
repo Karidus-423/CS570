@@ -17,6 +17,7 @@ open_output *open_file_1_svc(open_input *argp, struct svc_req *rqstp) {
 	if ((strcmp(argp->file_name, "01CheckStep")== 0) && lifetime_checks == 0){
 		printf("Check Step Recieved.\n");
 		SetupDB();
+		lifetime_checks++;
 		return &result;
 	}else{
 		result.fd = FindFile(argp->user_name, argp->file_name);
@@ -24,8 +25,14 @@ open_output *open_file_1_svc(open_input *argp, struct svc_req *rqstp) {
 			//File not found.
 			if (AddFile(argp->user_name, argp->file_name) == 0){
 				result.fd = FindFile(argp->user_name, argp->file_name);
+				result.out_msg.out_msg_len=10;
+				free(result.out_msg.out_msg_val);
+				result.out_msg.out_msg_val=(char *) malloc(result.out_msg.out_msg_len);
+				strcpy(result.out_msg.out_msg_val, (*argp).file_name);
+				printf("In server: filename recieved:%s\n",argp->file_name);
+				printf("In server username received:%s\n",argp->user_name);
 			}else{
-				printf("Unable to add file");
+				printf("Unable to add file\n");
 				exit(EXIT_FAILURE);
 			}
 		}else{

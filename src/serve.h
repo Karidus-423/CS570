@@ -39,7 +39,7 @@ typedef struct fileMeta {
 #define FILE_SEPARATOR "\x1C"
 #define GROUP_SEPARATOR "\x1D"
 #define UNIT_SEPARATOR "\x1F"
-#define TEXT_START "\x02"
+#define TEXT_START "\n\x02\n"
 #define NULL_BYTE "\x00"
 
 #define BLOCK 512

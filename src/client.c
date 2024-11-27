@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
+
 bool ConnectToServer(char *host, CLIENT **client) {
     *client = clnt_create(host, SSNFSPROG, SSNFSVER, "udp");
     if (client == NULL) {
@@ -45,18 +46,18 @@ void FileServer(char *host, CLIENT **client) {
 }
 
 int Open(char *filename_to_open, CLIENT **clnt) {
-    open_output *result_1;
+  open_output *result_open;
 
-    open_input open_file_1_arg;
-    strcpy(open_file_1_arg.user_name, (getpwuid(getuid()))->pw_name);
-    strcpy(open_file_1_arg.file_name, filename_to_open);
+  open_input open_file_1_arg;
+  strcpy(open_file_1_arg.user_name, (getpwuid(getuid()))->pw_name);
+  strcpy(open_file_1_arg.file_name, filename_to_open);
 
-    result_1 = open_file_1(&open_file_1_arg, *clnt);
-    if (result_1 == (open_output *)NULL) {
-        clnt_perror(*clnt, "call open failed ");
-    }
-    printf("File name is %s\n", (*result_1).out_msg.out_msg_val);
-    return ((*result_1).fd);
+  result_open = open_file_1(&open_file_1_arg, *clnt);
+  if (result_open == (open_output *)NULL) {
+    clnt_perror(*clnt, "call open failed ");
+  }
+  printf("File name is %s\n", (*result_open).out_msg.out_msg_val);
+  return ((*result_open).fd);
 }
 
 int Write(int fd, char*bfr, CLIENT **clnt, int bytes ,char *usr_name){
@@ -77,17 +78,29 @@ int Write(int fd, char*bfr, CLIENT **clnt, int bytes ,char *usr_name){
 	return ((*result).success);
 }
 
+void Close(int fd, CLIENT **clnt){
+	close_output *result_close;
+
+	close_input close_file_1_arg;
+	strcpy(close_file_1_arg.user_name, (getpwuid(getuid()))->pw_name);
+	close_file_1_arg.fd = fd;
+
+	result_close = close_file_1(&close_file_1_arg, *clnt);
+
+}
+
 void Test(CLIENT **clnt, char *usr_name){
-int i,j;
+// printf("TEST\n");
+// int i,j;
 int fd1,fd2;
-char buffer[100];
-// fd1=Open("File1",*&clnt); 
+// char buffer[100];
+fd1=Open("File1",*&clnt); 
 // printf("Returned File Descriptor %d\n", fd1);
 // for (i=0; i< 20;i++){
 // Write(fd1,  "This is a test program for cs570 assignment 4", *&clnt, 15,usr_name);
 // }
-// Close(fd1);
-// fd2=Open("File2",*&clnt);
+Close(fd1, *&clnt);
+fd2=Open("File2",*&clnt);
 // for (j=0; j< 20;j++){
 // Read(fd2, buffer, 10);
 // printf("%s\n",buffer);
@@ -114,12 +127,13 @@ int main(int argc, char *argv[]) {
         if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         }
+
         // --------------------------Test Code----------------------------------
 		int fd = Open("01CheckStep",&client);
-        printf("TEST\n");
 		char *usr_name = getpwuid(getuid())->pw_name;
 		Test(&client,usr_name);
         // ---------------------------------------------------------------------
+
     } else {
         host = argv[1];
         if (ConnectToServer(host, &client) == false) {
