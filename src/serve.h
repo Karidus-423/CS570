@@ -39,21 +39,24 @@ typedef struct fileMeta {
 #define FILE_SEPARATOR "\x1C"
 #define GROUP_SEPARATOR "\x1D"
 #define UNIT_SEPARATOR "\x1F"
-#define TEXT_START "\n\x02\n"
+#define TEXT_START "\n\x02"
 #define NULL_BYTE "\x00"
 
 #define BLOCK 512
 #define BUFFER_SIZE BLOCK
 #define FILE_BLOCK (BLOCK * 64)
-#define MAX_DB_SIZE (16 * 1024 * 1024 / FILE_BLOCK)
+#define MAX_DB_SIZE (16 * 1024 * 1024) // 16Mb
 
 extern const char *DB_PATH;
+extern int initial_size;
+extern fileMeta *files; // Dynamic array to hold file metadata
 
 int SetupDB();
 int FindFile(char usr_name[], char file_name[]);
 int AddFile(char usr_name[], char file_name[]);
 int InitDBTable();
 int SaveFileToDB(fileMeta file);
+void ScanDbToTable();
 int RetrieveDatabaseInfo();
 
 #endif

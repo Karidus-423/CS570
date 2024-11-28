@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lncurses
+CFLAGS = -lncurses -g
 
 SRC=src
 OBJ=obj
@@ -10,7 +10,7 @@ SRCS=$(wildcard $(SRC)/*.c)
 OBJS = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 
 CLIENT_OBJS = $(addprefix $(OBJ)/,client.o ssnfs_clnt.o ssnfs_xdr.o)
-SERVER_OBJS = $(addprefix $(OBJ)/,server.o ssnfs_svc.o ssnfs_xdr.o srv_utils.o)
+SERVER_OBJS = $(addprefix $(OBJ)/,server.o ssnfs_svc.o ssnfs_xdr.o srv_utils.o parsing.o)
 GEN_FILES = $(addprefix $(GEN)/, *.c ssnfs.h)
 
 TARGETS = $(BIN)/client-sun $(BIN)/server-sun

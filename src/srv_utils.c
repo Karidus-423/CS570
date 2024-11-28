@@ -7,7 +7,6 @@
 const char *DB_PATH = "./database.dt";
 // Global Variables
 fileMeta *files = NULL;     // Dynamic array to hold file metadata
-int file_found = 0;         // Number of files found
 int initial_size = 16;      // Initial capacity of the array
 
 long GetFileSize(const char *filename) {
@@ -19,6 +18,7 @@ long GetFileSize(const char *filename) {
     fseek(file, 0, SEEK_END);
 
     long file_size = ftell(file);
+	printf("%ld\n",file_size);
 
     fclose(file);
     return file_size;
@@ -26,15 +26,18 @@ long GetFileSize(const char *filename) {
 
 
 int FindFile(char usr_name[], char file_name[]) {
-	for (int i = 0; i < file_found;i++){
+	for (int i = 0; i < initial_size;i++){
 		if ((strcmp(usr_name, files[i].user) == 0) &&
 			(strcmp(file_name, files[i].name) == 0)) {
-			files[i].state = FILE_OPEN;
-			printf("FILE FOUND\n");
+			if (files[i].state != FILE_OPEN) {
+				files[i].state = FILE_OPEN;
+			}
+			printf("FILE FOUND: ");
 			SaveFileToDB(files[i]);
 			return files[i].fd;
 		}
 	}
+	printf("In FindFile file not found.\n");
 	return -1;
 }
 
@@ -81,10 +84,10 @@ char* BuildMetaStr(fileMeta file){
 
 
 	snprintf(meta_str + strlen(meta_str), sizeof(meta_str) - strlen(meta_str),
-		  "\n\x1F_NAME:%-20s\n\x1F_USER:%-20s\n\x1F_FD:%-20d\n"
+		  "\n\x1F_FD:%-20d \x1F_NAME:%-20s \x1F_USER:%-20s\n"
 		  "\x1F_FILE_START:%-10ld \x1F_FILE_STATE:%-10d \x1F_FILE_INFO:%-10d\n"
 		  "\x1F_TEXT_START:%-10ld \x1F_FILE_PTR:%-10ld",
-		  file.name, file.user, file.fd,file.file_start, 
+		  file.fd, file.name, file.user, file.file_start, 
 		  file.state, file.block_info, file.txt_start, file.file_ptr);
 	// snprintf(meta_str + strlen(meta_str), sizeof(meta_str) - strlen(meta_str),
 	// "%s\n", TEXT_START);
@@ -121,61 +124,30 @@ int SaveTableToDB(){//Should be called on Init and Server Reboot after parsing.
 		perror("Error opening file");
 		return 1;
 	}
-	for(int i = 0; i < file_found; i++){
-		//Clear Prev Meta
-		fseek(db_file, files[i].file_start, SEEK_SET);
-		static char blank[BUFFER_SIZE] = {'\0'};
-		snprintf(blank, sizeof(blank), "%s", GROUP_SEPARATOR);
-		//Add Curr Meta
-		char *meta_str = BuildMetaStr(files[i]);
-		printf("%s\n",meta_str);
-		//Write file meta to db.
-		fseek(db_file, files[i].file_start, SEEK_SET);
-		fwrite(meta_str, BUFFER_SIZE, 1, db_file);
-		fseek(db_file, files[i].txt_start, SEEK_SET);
-		fwrite(TEXT_START, sizeof(char), strlen(TEXT_START), db_file);
-		// fwrite(TEXT_START, 1, 1, db_file);
+	for(int i = 0; i < initial_size; i++){
+		SaveFileToDB(files[i]);
+		// //Clear Prev Meta
+		// fseek(db_file, files[i].file_start, SEEK_SET);
+		// static char blank[BUFFER_SIZE] = {'\0'};
+		// snprintf(blank, sizeof(blank), "%s", GROUP_SEPARATOR);
+		// //Add Curr Meta
+		// char *meta_str = BuildMetaStr(files[i]);
+		// printf("%s\n",meta_str);
+		// //Write file meta to db.
+		// fseek(db_file, files[i].file_start, SEEK_SET);
+		// fwrite(meta_str, BUFFER_SIZE, 1, db_file);
+		// fseek(db_file, files[i].txt_start, SEEK_SET);
+		// fwrite(TEXT_START, sizeof(char), strlen(TEXT_START), db_file);
+		// // fwrite(TEXT_START, 1, 1, db_file);
 	}
 	fclose(db_file);
-	return 0;
-}
-
-
-int ScanDbToTable(){
-	printf("Entering ScanDBToTable");
-	//Allocate 100KB more to the db file. Continue adding file_sept from last..
-	size_t start_bfr = 100 * 1024;
-	// Open the file for writing
-	FILE *db_init = fopen(DB_PATH, "a+");
-	if (!db_init) {
-		perror("Error opening file");
-		return 1;
-	}
-	//Intiate 100kb of null. 
-	unsigned char *null_bfr = (unsigned char *)malloc(start_bfr);
-	if (null_bfr == NULL){
-		perror("Failed to allocate null bfr.");
-		return 1;
-	}
-
-	//Append 100kb of null.
-	fwrite(null_bfr, 1,start_bfr,db_init);
-	free(null_bfr);
-	fclose(db_init);
-
-	return 0;
-}
-
-
-int AddFileSpace(){
-	printf("File Full Increasing Capacity");
 	return 0;
 }
 
 int AddFile(char usr_name[], char file_name[]) {
 	//Look For empty file block.
 	int fd_found;
-	for (int i = 0; i < file_found;i++){
+	for (int i = 0; i < initial_size;i++){
 		if (files[i].block_info == EMPTY){
 			strcpy(files[i].name,file_name);
 			strcpy(files[i].user,usr_name);
@@ -183,7 +155,7 @@ int AddFile(char usr_name[], char file_name[]) {
 			fd_found = files[i].fd;
 			printf("ADDING FILE\n");
 			SaveFileToDB(files[i]);
-			return fd_found;
+			return 0;
 		}
 		//End of loop file not found.
 		fd_found = -1;
@@ -198,7 +170,6 @@ int AddFile(char usr_name[], char file_name[]) {
 		} else {
 			// Space Available Allocate more space.
 			printf("Allocating Space.");
-			// AddFileSpace();
 			return 0;
 		}
 		return -1;
@@ -243,6 +214,7 @@ int InitDBFile(){
 }
 
 int InitDBTable() {
+	int file_found = 0;
 	if (files == NULL){
 		//Parse InitDB and fill files with defaults
 		FILE *db_file = fopen(DB_PATH, "r");
@@ -287,11 +259,11 @@ int InitDBTable() {
 				files[i].file_start = file_pos;
 				files[i].fd = i;
 				//Init with defaults
-				strcpy(files[i].name,"No Name");
-				strcpy(files[i].user,"No User");
+				strcpy(files[i].name,"No-Name");
+				strcpy(files[i].user,"No-User");
 				files[i].state = FILE_CLOSED;
 				files[i].txt_start = files[i].file_start + BUFFER_SIZE;
-				files[i].file_ptr = files[i].txt_start;
+				files[i].file_ptr = files[i].txt_start + strlen(TEXT_START);
 		 		files[i].block_info = EMPTY;
 			}
 		}
@@ -321,7 +293,20 @@ int SetupDB(){
 		//Server Crashed/Restarted.
 		printf("DB Present. Checking Table...\n");
 		if (files == NULL){
+		printf("File Table missing server crashed/restarted...\n");
 			ScanDbToTable();
+			// if (files == NULL){
+			// 	printf("Unable to init file table");
+			// }else{//Print file gotten from DB.
+			for (int i = 0; i<initial_size;i++){
+				printf(
+				 "\x1F_FD:%-20d \x1F_NAME:%-20s\x1F_USER:%-20s\n"
+				 "\x1F_FILE_START:%-10ld \x1F_FILE_STATE:%-10d \x1F_FILE_INFO:%-10d\n"
+				 "\x1F_TEXT_START:%-10ld \x1F_FILE_PTR:%-10ld\n\n",
+				 files[i].fd, files[i].name, files[i].user, files[i].file_start, 
+				 files[i].state, files[i].block_info, files[i].txt_start, files[i].file_ptr);
+			}
+			// }
 		}else{
 			printf("Table Present.");
 		}
