@@ -213,15 +213,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+	char *usr_name = getpwuid(getuid())->pw_name;
     if (strcmp(argv[1], "-d") == 0) {
         // Enter Debug Mode for testing.
         host = argv[2];
         if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         }
-
         // --------------------------Test Code----------------------------------
-		char *usr_name = getpwuid(getuid())->pw_name;
 		int fd = Open("01CheckStep",&client,usr_name);
 		Test(&client,usr_name);
         // ---------------------------------------------------------------------
@@ -230,7 +229,7 @@ int main(int argc, char *argv[]) {
         if (ConnectToServer(host, &client) == false) {
             exit(EXIT_FAILURE);
         } else {
-            FileServer(host, &client);
+			FileServer(usr_name, host, &client);
         }
     }
 }

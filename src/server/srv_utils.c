@@ -184,7 +184,7 @@ int InitDBFile(){
         perror("Error opening file");
         return 1;
     }
-	//Intiate 500kb of null. 
+	//Intiate MAX_DB_SIZE of null. 
 	size_t start_bfr = MAX_DB_SIZE;
 	unsigned char *null_bfr = (unsigned char *)malloc(start_bfr);
 	if (null_bfr == NULL){
