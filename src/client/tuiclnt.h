@@ -32,6 +32,6 @@ void Delete(char *file_name, char *usr_name, CLIENT **clnt);
 void List(char *usr_name, CLIENT **clnt);
 
 void FileServer(char *usr_name, char *host, CLIENT **client);
-void HandleMenu();
+void HandleInput(char *cmd, WINDOW *content, CLIENT **clnt, char *username);
 
 #endif

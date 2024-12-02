@@ -202,7 +202,7 @@ void Test(CLIENT **clnt, char *usr_name){
 	//
 	Delete("File1", usr_name, clnt);
 	//
-	// List(usr_name,clnt);
+	List(usr_name,clnt);
 }
 
 int main(int argc, char *argv[]) {
@@ -217,19 +217,19 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[1], "-d") == 0) {
         // Enter Debug Mode for testing.
         host = argv[2];
-        if (ConnectToServer(host, &client) == false) {
-            exit(EXIT_FAILURE);
-        }
-        // --------------------------Test Code----------------------------------
-		int fd = Open("01CheckStep",&client,usr_name);
-		Test(&client,usr_name);
-        // ---------------------------------------------------------------------
+		if (ConnectToServer(host, &client) == false) {
+			exit(EXIT_FAILURE);
+		} else {
+			FileServer(usr_name, host, &client);
+		}
     } else {
         host = argv[1];
-        if (ConnectToServer(host, &client) == false) {
-            exit(EXIT_FAILURE);
-        } else {
-			FileServer(usr_name, host, &client);
-        }
+		if (ConnectToServer(host, &client) == false) {
+			exit(EXIT_FAILURE);
+		}
+		// --------------------------Test Code----------------------------------
+		int fd = Open("01CheckStep",&client,usr_name);
+		Test(&client,usr_name);
+		// ---------------------------------------------------------------------
     }
 }
