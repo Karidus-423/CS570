@@ -1,7 +1,5 @@
-#include "tuiclnt.h"
 #include <rpc/clnt.h>
 #include <malloc.h>
-#include <ncurses.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
