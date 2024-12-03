@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
 		if (ConnectToServer(host, &client) == false) {
 			exit(EXIT_FAILURE);
 		} else {
-			FileServer(usr_name, host, &client);
+			// FileServer(usr_name, host, &client);
 		}
     } else {
         host = argv[1];
