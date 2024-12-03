@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -ltirpc
+CFLAGS = -lncurses -g
 
 SRC=src
 OBJ=obj
@@ -11,7 +11,7 @@ SRV=$(SRC)/server
 SRCS=$(wildcard $(SRC)/*.c)
 OBJS = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 
-CLIENT_OBJS = $(addprefix $(OBJ)/,client.o ssnfs_clnt.o ssnfs_xdr.o)
+CLIENT_OBJS = $(addprefix $(OBJ)/,client.o ssnfs_clnt.o ssnfs_xdr.o tui.o)
 SERVER_OBJS = $(addprefix $(OBJ)/,server.o ssnfs_svc.o ssnfs_xdr.o srv_utils.o parsing.o)
 
 SRV_FILE = $(addprefix $(SRV)/, *.c)
@@ -54,4 +54,5 @@ server:
 
 client:$(BIN)/client-sun
 	./bin/client-sun localhost
+
 
