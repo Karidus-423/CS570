@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lncurses -g
+CFLAGS = -lncurses -g -l/usr/include/tirpc -ltirpc
 
 SRC=src
 OBJ=obj
@@ -36,13 +36,15 @@ $(BIN)/server-sun: $(SERVER_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 $(OBJ)/%.o: $(SRV)/%.c
-	$(CC) -c $< -o $@
+	$(CC) -c $< -o $@ $(CFLAGS)
+
 	
 $(OBJ)/%.o: $(CLNT)/%.c 
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
+
 
 $(OBJ)/%.o: $(GEN)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
 
 clean:
 	rm -f *.o $(TARGETS) $(OBJS) $(CLIENT_OBJS) $(SERVER_OBJS) $(GEN_FILES) ./database.dt

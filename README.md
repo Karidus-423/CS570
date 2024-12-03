@@ -5,6 +5,7 @@ ___
 `make clean`, remove all objs and bin files. Along with `rpcgen` generated files.
 
 `make server` and `make client` are just simple commands to connect to localhost.
+If you want a specific run `./bin/client-sun <serverhost>`.
 
 ## Using
 ___
@@ -20,3 +21,7 @@ reserved for file metadata. (Filename,closed_state,username,file_descriptor)
 
 This metadata is used by the server by creating the file table if the server
 crashes or restarts.
+
+Only change done to the ssnfs.x was to change the program number. This
+was needed to run. As the multilab machines already reserved that number
+for another student.

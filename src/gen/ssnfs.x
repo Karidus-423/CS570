@@ -98,4 +98,4 @@ program SSNFSPROG{
     close_output  close_file(close_input) = 6;
     seek_output seek_position(seek_input)=7;
   } = 1;
-}=0x31110023;
+}=0x31110056;
