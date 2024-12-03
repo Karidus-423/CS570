@@ -6,10 +6,14 @@
 #include <malloc.h>
 #include <ncurses.h>
 #include <pwd.h>
+#include <rpc/rpc.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ipc.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 typedef struct Vec2 {
